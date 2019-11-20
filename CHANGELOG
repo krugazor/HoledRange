@@ -1,0 +1,4 @@
+- Version 0.1.0: Initial release
+  + Fairly usable for arithmetic and floating point data experiments
+  + Experimental support for strings, especially in the `Randomizable` department
+  + Full test suite
