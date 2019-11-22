@@ -295,11 +295,11 @@ final class VersolTests: XCTestCase {
         XCTAssertFalse(s.contains(3))
         XCTAssert(s.contains(1))
         XCTAssert(s.contains(4))
- 
+        
         // check for no modification when using the operator
         XCTAssertFalse(h1.contains(4))
         XCTAssertFalse(h2.contains(1))
-
+        
         // check for no modification when using the operator
         XCTAssertFalse(h1.contains(4))
         XCTAssertFalse(h2.contains(1))
@@ -323,6 +323,42 @@ final class VersolTests: XCTestCase {
         XCTAssert(h3 == h4)
     }
     
+    func testMaths() {
+        // ints
+        var hi1 = HoledRange(1...3)
+        hi1.apply { $0 + 3 } // now at 4...6
+        let hi2 = HoledRange(1...3) ~+ 3
+        XCTAssert(hi1.contains(5) && hi2.contains(5))
+        XCTAssertFalse(hi1.contains(1) || hi2.contains(1))
+        
+        var hi3 = HoledRange(1...3)
+        hi3.apply { $0 * 3 } // now at 3...9
+        let hi4 = HoledRange(1...3) ~* 3
+        XCTAssert(hi3.contains(5) && hi4.contains(5))
+        XCTAssertFalse(hi3.contains(1) || hi4.contains(1))
+        
+        var hi5 = HoledRange(1...3)
+        hi5.apply { $0 - 3 } // now at -2...0
+        let hi6 = HoledRange(1...3) ~- 3
+        XCTAssert(hi5.contains(-1) && hi6.contains(-1))
+        XCTAssertFalse(hi5.contains(1) || hi6.contains(1))
+        
+        // Doubles
+        var hd1 = HoledRange((1.0)...(3.0))
+        hd1.apply { $0 + 3 } // now at 4...6
+        let hd2 = HoledRange((1.0)...(3.0)) ~+ 3
+        XCTAssert(hd1.contains(5) && hd2.contains(5))
+        XCTAssertFalse(hd1.contains(1) || hd2.contains(1))
+
+        var hd3 = HoledRange((1.0)...(3.0))
+        hd3.apply { $0 / 2 } // now at 1...1.5
+        let hd4 = HoledRange((1.0)...(3.0)) ~/ 2
+        XCTAssert(hd3.contains(1.25) && hd4.contains(1.25))
+        XCTAssertFalse(hd3.contains(3) || hd4.contains(3))
+
+
+    }
+    
     static var allTests = [
         ("testAppendingEmpty", testEmpty),
         ("testAppending", testAppending),
@@ -333,5 +369,6 @@ final class VersolTests: XCTestCase {
         ("testSingleUnsigned", testSingleUnsigned),
         ("testOperations", testOperations),
         ("testEquality", testEquality),
+        ("testMaths", testMaths),
     ]
 }

@@ -6,9 +6,9 @@ import Foundation
 /// HoledRange allows for ranges to be more than open or closed. They can have holes in the middle as well
 public struct HoledRange<Bound> where Bound : Comparable, Bound : Hashable {
 	/// private storage as `ClosedRange` collection
-    fileprivate var ranges: [ClosedRange<Bound>] = []
+    var ranges: [ClosedRange<Bound>] = []
     /// private storage for excluded values, mostly to simulate open ranges (where boundaries are excluded)
-    fileprivate var excludedValues : Set<Bound> = Set() /// Because we use closed ranges, we need to be able to punch single value holes
+    var excludedValues : Set<Bound> = Set() /// Because we use closed ranges, we need to be able to punch single value holes
     
     var rangesCount : Int { return ranges.count } /// mostly for debug/test purposes
     
