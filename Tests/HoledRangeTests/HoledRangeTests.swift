@@ -382,6 +382,66 @@ final class VersolTests: XCTestCase {
         }
     }
     
+    // Automaton testing : State graph and enums
+    enum DoorState : Comparable, Hashable {
+        case closed
+        case opening
+        case open
+        case closing
+        
+        // because I don't WANT to be an int but have all the advantages of being an int
+        private var intValue : Int {
+            switch self {
+            case .closed:
+                return 1
+            case .opening:
+                return 2
+            case .open:
+                return 3
+            case .closing:
+                return 4
+            @unknown default:
+                return -1
+            }
+        }
+        
+        public var isMoving : Bool { return self == .closing || self == .opening }
+        static func < (lhs: VersolTests.DoorState, rhs: VersolTests.DoorState) -> Bool {
+            return lhs.intValue < rhs.intValue
+        }
+        
+        public func next() -> DoorState {
+            switch self {
+            case .closed:
+                return .opening
+            case .opening:
+                return .open
+            case .open:
+                return .closing
+            case .closing:
+                return .closed
+            @unknown default:
+                return .closed
+            }
+        }
+    }
+    
+    func testEnum() {
+        var hr = HoledRange<DoorState>()
+        hr.append(.closed)
+        hr.append(.open)
+        hr.remove(.opening)
+        hr.remove(.closing)
+        
+        XCTAssert(hr.contains(.open))
+        XCTAssertFalse(hr.contains(.opening))
+        
+        do { try hr.apply { $0.next() } }
+        catch { XCTFail() }
+        XCTAssertFalse(hr.contains(.open))
+        XCTAssert(hr.contains(.opening))
+    }
+    
     static var allTests = [
         ("testAppendingEmpty", testEmpty),
         ("testAppending", testAppending),
@@ -393,5 +453,6 @@ final class VersolTests: XCTestCase {
         ("testOperations", testOperations),
         ("testEquality", testEquality),
         ("testMaths", testMaths),
+        ("testEnum", testEnum),
     ]
 }
