@@ -324,39 +324,62 @@ final class VersolTests: XCTestCase {
     }
     
     func testMaths() {
-        // ints
-        var hi1 = HoledRange(1...3)
-        hi1.apply { $0 + 3 } // now at 4...6
-        let hi2 = HoledRange(1...3) ~+ 3
-        XCTAssert(hi1.contains(5) && hi2.contains(5))
-        XCTAssertFalse(hi1.contains(1) || hi2.contains(1))
+        do {
+            // ints
+            var hi1 = HoledRange(1...3)
+            try hi1.apply { $0 + 3 } // now at 4...6
+            let hi2 = try HoledRange(1...3) ~+ 3
+            XCTAssert(hi1.contains(5) && hi2.contains(5))
+            XCTAssertFalse(hi1.contains(1) || hi2.contains(1))
+            
+            var hi3 = HoledRange(1...3)
+            try hi3.apply { $0 * 3 } // now at 3...9
+            let hi4 = try HoledRange(1...3) ~* 3
+            XCTAssert(hi3.contains(5) && hi4.contains(5))
+            XCTAssertFalse(hi3.contains(1) || hi4.contains(1))
+            
+            var hi5 = HoledRange(1...3)
+            try hi5.apply { $0 - 3 } // now at -2...0
+            let hi6 = try HoledRange(1...3) ~- 3
+            XCTAssert(hi5.contains(-1) && hi6.contains(-1))
+            XCTAssertFalse(hi5.contains(1) || hi6.contains(1))
+            
+            // Doubles
+            var hd1 = HoledRange((1.0)...(3.0))
+            try hd1.apply { $0 + 3 } // now at 4...6
+            let hd2 = try HoledRange((1.0)...(3.0)) ~+ 3
+            XCTAssert(hd1.contains(5) && hd2.contains(5))
+            XCTAssertFalse(hd1.contains(1) || hd2.contains(1))
+            
+            var hd3 = HoledRange((1.0)...(3.0))
+            try hd3.apply { $0 / 2 } // now at 1...1.5
+            let hd4 = try HoledRange((1.0)...(3.0)) ~/ 2
+            XCTAssert(hd3.contains(1.25) && hd4.contains(1.25))
+            XCTAssertFalse(hd3.contains(3) || hd4.contains(3))
+            
+            var hs1 = HoledRange("a"..."z")
+            let hs2 = try hs1 ~* (4,"1")
+            hs1 = try hs1 ~+ "1111"
+            XCTAssert(hs1.lowerBound == hs2.lowerBound && hs1.upperBound == hs2.upperBound)
+        } catch {
+            XCTFail("Exception where there shouldn't be")
+        }
         
-        var hi3 = HoledRange(1...3)
-        hi3.apply { $0 * 3 } // now at 3...9
-        let hi4 = HoledRange(1...3) ~* 3
-        XCTAssert(hi3.contains(5) && hi4.contains(5))
-        XCTAssertFalse(hi3.contains(1) || hi4.contains(1))
-        
-        var hi5 = HoledRange(1...3)
-        hi5.apply { $0 - 3 } // now at -2...0
-        let hi6 = HoledRange(1...3) ~- 3
-        XCTAssert(hi5.contains(-1) && hi6.contains(-1))
-        XCTAssertFalse(hi5.contains(1) || hi6.contains(1))
-        
-        // Doubles
-        var hd1 = HoledRange((1.0)...(3.0))
-        hd1.apply { $0 + 3 } // now at 4...6
-        let hd2 = HoledRange((1.0)...(3.0)) ~+ 3
-        XCTAssert(hd1.contains(5) && hd2.contains(5))
-        XCTAssertFalse(hd1.contains(1) || hd2.contains(1))
-
-        var hd3 = HoledRange((1.0)...(3.0))
-        hd3.apply { $0 / 2 } // now at 1...1.5
-        let hd4 = HoledRange((1.0)...(3.0)) ~/ 2
-        XCTAssert(hd3.contains(1.25) && hd4.contains(1.25))
-        XCTAssertFalse(hd3.contains(3) || hd4.contains(3))
-
-
+        do {
+            // Larger application for debug purposes
+            var hsl = HoledRange<Double>(0.0...10.0)
+            hsl.remove([0,1,2,3,4,5,6,7,8,9,10])
+            hsl.append(20...100)
+            
+            var hsl2 = HoledRange<Double>()
+            hsl2.append(hsl)
+            hsl2.remove([0,1,2,3,4,5,6,7,8,9,10])
+            try hsl2.apply { cos(pow($0,2)) }
+            
+            try hsl.apply { pow(acos($0),2) /* acos² */ }
+        } catch(let e) {
+            print(e)
+        }
     }
     
     static var allTests = [

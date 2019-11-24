@@ -300,6 +300,12 @@ extension HoledRange { // punching holes
         excludedValues.insert(v)
     }
     
+    /// Removes a list of values from the range
+    /// - Parameter v: the value to remove
+     public mutating func remove(_ v: [Bound]) {
+        for vv in v { excludedValues.insert(vv) }
+    }
+    
     /// Removes a range from the holed range
     ///
     /// Note: this is a fairly complex proposition. There are multiple ways we can remove a range from another, depending on overlaps and where the two ranges are in relation to each other
