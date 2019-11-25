@@ -546,13 +546,8 @@ extension HoledRange where Bound : Randomizable { // random, sample. etc...
 extension HoledRange : Sequence where Bound : Strideable, Bound.Stride : SignedInteger {
     public typealias Element = Bound
     public typealias Iterator = IndexingIterator<Array<Element>>
-    private var iterable : [Element] {
-        get {
-            ranges.flatMap { $0 }
-        }
-    }
-    
+
     public func makeIterator() -> Iterator {
-        return iterable.makeIterator()
+        return ranges.flatMap{ $0 }.makeIterator()
     }
 }
