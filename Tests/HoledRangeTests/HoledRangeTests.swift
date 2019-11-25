@@ -442,6 +442,55 @@ final class VersolTests: XCTestCase {
         XCTAssert(hr.contains(.opening))
     }
     
+    func testSequence() {
+        var iteratedValues = [Int]()
+        let hr = HoledRange(1...10) ⊖ HoledRange(21...30)
+        for n in hr {
+            let assertion = (n >= 0 && n <= 10) || (n >= 20 && n <= 30)
+            // Make sure we don't get values of of range
+            XCTAssertTrue(assertion)
+            
+            // Make sure we don't iterate two times over the same number
+            XCTAssertFalse(iteratedValues.contains(n))
+            iteratedValues.append(n)
+        }
+        
+        // Make sure we iterated over all values
+        XCTAssertEqual(20, iteratedValues.count)
+        
+        iteratedValues = [Int]()
+        let hr2 = HoledRange(1...10) ∪ HoledRange(21...30)
+        for n in hr2 {
+            
+            print(n)
+            
+            let assertion = (n >= 0 && n <= 10) || (n >= 20 && n <= 30)
+            XCTAssertTrue(assertion)
+            XCTAssertFalse(iteratedValues.contains(n))
+            iteratedValues.append(n)
+        }
+        XCTAssertEqual(20, iteratedValues.count)
+        
+        iteratedValues = [Int]()
+        let hr3 = HoledRange(0...30) ∩ HoledRange(16...25)
+        for n in hr3 {
+            
+            print(n)
+            
+            let assertion = (n >= 16 && n <= 25)
+            XCTAssertTrue(assertion)
+            XCTAssertFalse(iteratedValues.contains(n))
+            iteratedValues.append(n)
+        }
+        XCTAssertEqual(10, iteratedValues.count)
+        
+        // Make sure it can handle 0 elements
+        XCTAssertEqual(0, (HoledRange(1...10) ∩ HoledRange(20...30)).map { $0 }.count)
+        
+        // Asserting for a non interactive HoledRange
+        XCTAssertEqual(10, HoledRange(1...10).map{ $0 }.count)
+    }
+    
     static var allTests = [
         ("testAppendingEmpty", testEmpty),
         ("testAppending", testAppending),
@@ -454,5 +503,6 @@ final class VersolTests: XCTestCase {
         ("testEquality", testEquality),
         ("testMaths", testMaths),
         ("testEnum", testEnum),
+        ("testSequence", testSequence)
     ]
 }
