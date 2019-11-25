@@ -462,8 +462,6 @@ final class VersolTests: XCTestCase {
         let hr2 = HoledRange(1...10) ∪ HoledRange(21...30)
         for n in hr2 {
             
-            print(n)
-            
             let assertion = (n >= 0 && n <= 10) || (n >= 20 && n <= 30)
             XCTAssertTrue(assertion)
             XCTAssertFalse(iteratedValues.contains(n))
@@ -474,8 +472,6 @@ final class VersolTests: XCTestCase {
         iteratedValues = [Int]()
         let hr3 = HoledRange(0...30) ∩ HoledRange(16...25)
         for n in hr3 {
-            
-            print(n)
             
             let assertion = (n >= 16 && n <= 25)
             XCTAssertTrue(assertion)
