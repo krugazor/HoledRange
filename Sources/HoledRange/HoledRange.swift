@@ -542,3 +542,50 @@ extension HoledRange where Bound : Randomizable { // random, sample. etc...
         return result
     }
 }
+
+extension HoledRange : Sequence where Bound : Strideable, Bound.Stride : SignedInteger {
+    public typealias Element = Bound
+    public typealias Iterator = HoledRangeIterator
+
+    public func makeIterator() -> Iterator {
+        return HoledRangeIterator(self)
+    }
+
+    public struct HoledRangeIterator : IteratorProtocol {
+        public typealias Element = Bound
+        // Iterate over the ranges stored
+        var rangesIterator : IndexingIterator<[ClosedRange<Bound>]>
+        // The current range set with the next method of rangesIterator
+        var currentRange : ClosedRange<Bound>?
+        // Iterator of the current range
+        var currentRangeIterator : IndexingIterator<ClosedRange<Bound>>?  = nil
+
+        init(_ sequence: HoledRange) {
+            rangesIterator = sequence.ranges.makeIterator()
+            currentRange = rangesIterator.next()
+        }
+
+        /// Iterate over every ranges stored
+        ///
+        /// Returns: next Element of current range, next Element of next range if previous is nil, nil if previous is nil
+        public mutating func next() -> Bound? {
+            if nil != currentRangeIterator {
+                if let value = currentRangeIterator!.next() {
+
+                    return value
+                } else {
+                    currentRange = rangesIterator.next()
+                    currentRangeIterator = nil
+
+                    return next()
+                }
+            } else if nil != currentRange {
+                currentRangeIterator = currentRange!.makeIterator()
+
+                return next()
+            }
+
+            return nil
+        }
+    }
+}
