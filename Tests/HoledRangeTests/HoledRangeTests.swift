@@ -487,6 +487,19 @@ final class VersolTests: XCTestCase {
         XCTAssertEqual(10, HoledRange(1...10).map{ $0 }.count)
     }
     
+    func testTransform() {
+        let hr = HoledRange(1...10) ⊖ HoledRange(21...30)
+
+        let transformed1 = hr.transform { (v) -> Double in
+            return Double(v)
+        }
+        
+        XCTAssert(transformed1.lowerBound == 1.0)
+        XCTAssert(transformed1.upperBound == 30.0)
+        XCTAssert(transformed1.contains(5.0))
+        XCTAssert(!transformed1.contains(12))
+    }
+    
     static var allTests = [
         ("testAppendingEmpty", testEmpty),
         ("testAppending", testAppending),
@@ -499,6 +512,7 @@ final class VersolTests: XCTestCase {
         ("testEquality", testEquality),
         ("testMaths", testMaths),
         ("testEnum", testEnum),
-        ("testSequence", testSequence)
+        ("testSequence", testSequence),
+        ("testTransform", testTransform),
     ]
 }
