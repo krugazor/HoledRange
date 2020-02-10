@@ -498,6 +498,14 @@ final class VersolTests: XCTestCase {
         XCTAssert(transformed1.upperBound == 30.0)
         XCTAssert(transformed1.contains(5.0))
         XCTAssert(!transformed1.contains(12))
+
+        // reverse
+        let transformed2 = hr.transform { $0*(-1)  }
+        XCTAssert(transformed2.lowerBound == -30)
+        XCTAssert(transformed2.upperBound == -1)
+        XCTAssert(transformed2.contains(-5))
+        XCTAssert(!transformed1.contains(-12))
+
     }
     
     static var allTests = [
