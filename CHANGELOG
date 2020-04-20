@@ -1,3 +1,15 @@
+- Version 0.1.3: Public
+  + various fixes regarding visibility scopes
+
+- Version 0.1.2: Iterations
+  + PR by zyigh: make (some) domains iterable eg in a for loop
+
+- Version 0.1.1: Maths!
+  + Basic maths operations
+  + Math exceptions for NaN and Inf
+  + Range bounds ordering bug fixed
+  + Unit tests (maths)
+
 - Version 0.1.0: Initial release
   + Fairly usable for arithmetic and floating point data experiments
   + Experimental support for strings, especially in the `Randomizable` department
