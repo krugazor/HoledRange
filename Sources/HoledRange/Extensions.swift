@@ -4,7 +4,8 @@
 import Foundation
 
 /// HoledRange didn't appeal to some people, Domain is an acceptable substitute
-public typealias Domain = HoledRange
+/// Reversed on renaming to avoid breaking code downstream
+public typealias HoledRange = Domain
 
 /// Protocol used for random sample in the ranges
 public protocol Randomizable : Comparable {

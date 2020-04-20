@@ -3,9 +3,9 @@
 
 import Foundation
 
-extension HoledRange {
-    public func transform<Q>(using f: @escaping (Bound)->Q) -> HoledRange<Q> where Q : Hashable, Q : Comparable{
-        var result = HoledRange<Q>()
+extension Domain {
+    public func transform<Q>(using f: @escaping (Bound)->Q) -> Domain<Q> where Q : Hashable, Q : Comparable{
+        var result = Domain<Q>()
         for r in self.ranges {
             let nbounds = [f(r.lowerBound), f(r.upperBound)].sorted()
             let nr = ClosedRange(uncheckedBounds: (lower: nbounds[0], upper: nbounds[1]))
