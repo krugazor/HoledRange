@@ -4,7 +4,7 @@
 import Foundation
 
 /// HoledRange allows for ranges to be more than open or closed. They can have holes in the middle as well
-public struct HoledRange<Bound> where Bound : Comparable, Bound : Hashable {
+public struct Domain<Bound> where Bound : Comparable, Bound : Hashable {
 	/// private storage as `ClosedRange` collection
     var ranges: [ClosedRange<Bound>] = []
     /// private storage for excluded values, mostly to simulate open ranges (where boundaries are excluded)
@@ -124,14 +124,14 @@ public struct HoledRange<Bound> where Bound : Comparable, Bound : Hashable {
     }
     
     /// Operator for the `contains` function
-    public static func ~= (pattern: HoledRange<Bound>, value: Bound) -> Bool {
+    public static func ~= (pattern: Domain<Bound>, value: Bound) -> Bool {
         return pattern.contains(value)
     }
     
 }
 
 /// Integers are the only special case in regular use where single value has a meaning even when the upper and lower bounds differ
-extension HoledRange where Bound : SignedInteger {
+extension Domain where Bound : SignedInteger {
     public var isSingleValue : Bool {
         if self.lowerBound == nil { return false }
         if self.lowerBound != self.upperBound { // complicated case
@@ -163,7 +163,7 @@ extension HoledRange where Bound : SignedInteger {
 }
 
 // sadly because there's no unified signed/unsigned
-extension HoledRange where Bound : UnsignedInteger {
+extension Domain where Bound : UnsignedInteger {
     public var isSingleValue : Bool {
         if self.lowerBound == nil { return false }
         if self.lowerBound != self.upperBound { // complicated case
@@ -194,7 +194,7 @@ extension HoledRange where Bound : UnsignedInteger {
     }
 }
 
-extension HoledRange { // additions
+extension Domain { // additions
     /// add a single value range
     /// - Parameter v: the new range to take into account
     public mutating func append(_ v: Bound) {
@@ -217,7 +217,7 @@ extension HoledRange { // additions
     
     /// add a range to the list
     /// - Parameter other: the new range to take into account
-    public mutating func append(_ other: HoledRange) {
+    public mutating func append(_ other: Domain) {
         var toRemove = [Bound]()
         for e in excludedValues {
             if other.contains(e) { toRemove.append(e) }
@@ -228,39 +228,39 @@ extension HoledRange { // additions
     }
     
     // Operator shenanigans
-    public static func +(r1: HoledRange<Bound>, v: Bound) -> HoledRange<Bound> {
-        var rr = HoledRange()
+    public static func +(r1: Domain<Bound>, v: Bound) -> Domain<Bound> {
+        var rr = Domain()
         rr.append(r1)
         rr.append(v)
         return rr
     }
-    public static func +(v: Bound, r1: HoledRange<Bound>) -> HoledRange<Bound> {
-        var rr = HoledRange()
+    public static func +(v: Bound, r1: Domain<Bound>) -> Domain<Bound> {
+        var rr = Domain()
         rr.append(r1)
         rr.append(v)
         return rr
     }
-    public static func +(r1: HoledRange<Bound>, r2: ClosedRange<Bound>) -> HoledRange<Bound> {
-        var rr = HoledRange()
+    public static func +(r1: Domain<Bound>, r2: ClosedRange<Bound>) -> Domain<Bound> {
+        var rr = Domain()
         rr.append(r1)
         rr.append(r2)
         return rr
     }
-    public static func +(r2: ClosedRange<Bound>, r1: HoledRange<Bound>) -> HoledRange<Bound> {
-        var rr = HoledRange()
+    public static func +(r2: ClosedRange<Bound>, r1: Domain<Bound>) -> Domain<Bound> {
+        var rr = Domain()
         rr.append(r1)
         rr.append(r2)
         return rr
     }
-    public static func +(r1: HoledRange<Bound>, r2: HoledRange<Bound>) -> HoledRange<Bound> {
-        var rr = HoledRange()
+    public static func +(r1: Domain<Bound>, r2: Domain<Bound>) -> Domain<Bound> {
+        var rr = Domain()
         rr.append(r1)
         rr.append(r2)
         return rr
     }
 }
 
-extension HoledRange { // comparisons
+extension Domain { // comparisons
     /// Tests if the union is empty
     /// - Parameter other: the range to test for
     /// - Returns: true if there are elements in common
@@ -282,7 +282,7 @@ extension HoledRange { // comparisons
     /// Tests if the union is empty
     /// - Parameter other: the range to test for
     /// - Returns: true if there are elements in common
-    public func overlaps(_ other: HoledRange<Bound>) -> Bool {
+    public func overlaps(_ other: Domain<Bound>) -> Bool {
         var result = false
         for o in other.ranges {
             result = result || ranges.reduce(false) { (p, r) in
@@ -293,7 +293,7 @@ extension HoledRange { // comparisons
     }
 }
 
-extension HoledRange { // punching holes
+extension Domain { // punching holes
     /// Removes a single value from the range
     /// - Parameter v: the value to remove
      public mutating func remove(_ v: Bound) {
@@ -359,7 +359,7 @@ extension HoledRange { // punching holes
     ///
     /// Note: this is complex for as many reasons as there are ranges in the `other` parameter
     /// Parameter other: the range to deduct from ourselves
-    public mutating func remove(_ other: HoledRange) {
+    public mutating func remove(_ other: Domain) {
         for r in other.ranges { remove(r) }
     }
 }
@@ -367,15 +367,15 @@ extension HoledRange { // punching holes
 infix operator ∪
 infix operator ∩
 infix operator ⊖
-extension HoledRange { // Unions, intersections, etc
+extension Domain { // Unions, intersections, etc
     /// Elements that are either in this holed range or the other one.
     /// - Parameter other: the other holed range
-    public mutating func union(_ other: HoledRange) {
+    public mutating func union(_ other: Domain) {
         // just merge the ranges
         ranges.append(contentsOf: other.ranges)
         optimizeStorage()
     }
-    public static func ∪(lhs: HoledRange, rhs: HoledRange) -> HoledRange {
+    public static func ∪(lhs: Domain, rhs: Domain) -> Domain {
         var rr = lhs
         rr.union(rhs)
         return rr
@@ -383,7 +383,7 @@ extension HoledRange { // Unions, intersections, etc
     
     /// Elements that are in both holed ranges.
     /// - Parameter other: the other holed range
-    public mutating func intersection(_ other: HoledRange) {
+    public mutating func intersection(_ other: Domain) {
         // find the overlaps
         var contacts = [(selfIdx: Int, otherIdx: Int)]()
         for i in 0..<ranges.count {
@@ -397,7 +397,7 @@ extension HoledRange { // Unions, intersections, etc
         for contact in contacts {
             let sr = ranges[contact.selfIdx]
             let or = other.ranges[contact.otherIdx]
-            newRanges.append(max(sr.lowerBound, or.lowerBound)...min(sr.upperBound,or.upperBound))
+            newRanges.append(Swift.max(sr.lowerBound, or.lowerBound)...Swift.min(sr.upperBound,or.upperBound))
         }
         
         // finalize
@@ -405,7 +405,7 @@ extension HoledRange { // Unions, intersections, etc
         excludedValues = excludedValues.union(other.excludedValues)
         optimizeStorage()
     }
-    public static func ∩(lhs: HoledRange, rhs: HoledRange) -> HoledRange {
+    public static func ∩(lhs: Domain, rhs: Domain) -> Domain {
         var rr = lhs
         rr.intersection(rhs)
         return rr
@@ -413,7 +413,7 @@ extension HoledRange { // Unions, intersections, etc
     
     /// Elements that are either in this set or in the given sequence, but not in both.
     /// - Parameter other: the other holed range
-    public mutating func symmetricDifference(_ other: HoledRange) {
+    public mutating func symmetricDifference(_ other: Domain) {
         // find disjointed
         let selfdisjointed = ranges.filter { (r) -> Bool in
             return !other.overlaps(r)
@@ -495,15 +495,15 @@ extension HoledRange { // Unions, intersections, etc
         ranges = newRanges
         optimizeStorage()
     }
-    public static func ⊖(lhs: HoledRange, rhs: HoledRange) -> HoledRange {
+    public static func ⊖(lhs: Domain, rhs: Domain) -> Domain {
         var rr = lhs
         rr.symmetricDifference(rhs)
         return rr
     }
 }
 
-extension HoledRange : Equatable { // Equatable makes sense, comparable, a little less. It's also a crude approximation as it doesn't handle edge cases
-    public static func ==(lhs: HoledRange, rhs: HoledRange) -> Bool {
+extension Domain : Equatable { // Equatable makes sense, comparable, a little less. It's also a crude approximation as it doesn't handle edge cases
+    public static func ==(lhs: Domain, rhs: Domain) -> Bool {
         var result = lhs.excludedValues == rhs.excludedValues
         if !result { return result }
         if lhs.ranges.count != rhs.ranges.count { return false }
@@ -515,7 +515,7 @@ extension HoledRange : Equatable { // Equatable makes sense, comparable, a littl
     }
 }
 
-extension HoledRange where Bound : Randomizable { // random, sample. etc...
+extension Domain where Bound : Randomizable { // random, sample. etc...
 	/// Selects a random element in this range
 	/// 
  	/// Returns: nil if no element can be selected, a random element of that type otherwise
@@ -543,7 +543,7 @@ extension HoledRange where Bound : Randomizable { // random, sample. etc...
     }
 }
 
-extension HoledRange : Sequence where Bound : Strideable, Bound.Stride : SignedInteger {
+extension Domain : Sequence where Bound : Strideable, Bound.Stride : SignedInteger {
     public typealias Element = Bound
     public typealias Iterator = HoledRangeIterator
 
@@ -560,7 +560,7 @@ extension HoledRange : Sequence where Bound : Strideable, Bound.Stride : SignedI
         // Iterator of the current range
         var currentRangeIterator : IndexingIterator<ClosedRange<Bound>>?  = nil
 
-        init(_ sequence: HoledRange) {
+        init(_ sequence: Domain) {
             rangesIterator = sequence.ranges.makeIterator()
             currentRange = rangesIterator.next()
         }
