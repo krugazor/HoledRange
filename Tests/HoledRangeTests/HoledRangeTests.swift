@@ -524,6 +524,20 @@ final class VersolTests: XCTestCase {
         
         let splits2 = d2.split(minimalStep: 2, count: 10)
         XCTAssert(splits2.count == 5)
+        
+        let testStr = "qwerty"
+        let empty = testStr.advancedBy(-6)
+        XCTAssert(empty.count == 0)
+        let bigger = testStr.advancedBy(14)
+        XCTAssert(bigger.count > 6)
+        let same = testStr.advancedBy(3)
+        XCTAssert(same.count == 6)
+
+        XCTAssert(empty.distanceTo(testStr) == 6) // levenstein doesn't work on empty strings
+        let bigD = bigger.distanceTo(testStr)
+        XCTAssert(bigD == 14, "\(bigD) should be 14")
+        XCTAssert(same.distanceTo(testStr) == 3)
+        XCTAssert("A".distanceTo("Z") == 1)
     }
     
     static var allTests = [

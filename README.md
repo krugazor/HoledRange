@@ -1,16 +1,16 @@
-# HoledRange
+# Domain
 
 ## Motivation
 
 I needed a way to have ranges with holes in them for another project. It's not exactly boilerplate code, but there were multiple instances where I had to deal with data matching and needed such a tool (especially on the union/intersection/symmetric difference side)
 
-HoledRange works by being essentially a *collection* of ranges and as such tries to be as compatible as possible with general uses of regular ranges.
+Domain works by being essentially a *collection* of ranges and as such tries to be as compatible as possible with general uses of regular ranges.
 
 ## Usage
 
-Like `Range<T>`, `HoledRange<T>` works with a `Bound` type in mind:
+Like `Range<T>`, `Domain<T>` works with a `Bound` type in mind:
 
-`let h = HoledRange(1.2...7.3)` or `let h = HoledRange(42)`
+`let h = Domain(1.2...7.3)` or `let h = Domain(42)`
 
 Bear in mind that `Bound` needs to conform to `Comparable` (for obvious reasons) and `Hashable` (for equality purposes).
 
@@ -25,10 +25,10 @@ There are two ways to use those operations:
 
 ```swift
 
-var h = HoledRange(1...1)
-h.union(HoledRange(2...2)) // h is modified
+var h = Domain(1...1)
+h.union(Domain(2...2)) // h is modified
 
-let o = h ⊖ HoledRange(2...2) // h is not modified
+let o = h ⊖ Domain(2...2) // h is not modified
 
 ```
 
