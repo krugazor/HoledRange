@@ -78,12 +78,69 @@ extension Bool : Splittable {
 // Levenstein distance from [SwiftyLevenstein](https://github.com/TheDarkCode/SwiftyLevenshtein)
 extension String : Splittable {
     public func distanceTo(_ other: String) -> Double {
+        if self.count == 0 { return Double(other.count) }
+        else if other.count == 0 { return Double(self.count) }
         return Double(String.levenshtein(sourceString: self, target: other))
     }
     
     public func advancedBy(_ distance: Double) -> String {
-        // TODO
-        return self
+        // Levenstein distance measures several things: insertion (+1)/deletion(-1), and substitution(+1) aka the "edits"
+        let steps = Int(distance)
+        
+        // for this, changing string size is our last resort
+        if steps < 0 { // we need to remove steps characters randomly
+            var remaining = Swift.abs(steps)
+            var result = self
+            while remaining > 0 && result.count > 0 {
+                result.remove(at: result.index(result.startIndex, offsetBy: Int.random(in: 0..<result.count)))
+                remaining -= 1
+            }
+            return result
+        } else if steps > self.count { // add characters
+            let remaining = Swift.abs(steps) - self.count
+            // let's try to add as few characters as possible
+            let notForbidden : String = String.letters.filter { (char) -> Bool in
+                return !self.contains(char)
+            }
+            if notForbidden.count > 0 {
+                var result = self.advancedBy(Double(steps-remaining))
+                for _ in 0..<remaining {
+                    let addition = notForbidden.randomElement()!
+                    let index = Int.random(in: 0..<result.count)
+                    result.insert(addition, at: result.index(result.startIndex, offsetBy: index))
+                }
+                return result
+            } else {
+                var result = self
+                for _ in 0..<remaining {
+                    let addition = String.letters.randomElement()!
+                    let index = Int.random(in: 0..<result.count)
+                    result.insert(addition, at: result.index(result.startIndex, offsetBy: index))
+                }
+                return result
+            }
+        } else {
+            var result = self
+            let indices = Array<Int>(0..<result.count).shuffled()[0..<steps]
+            let notForbidden : String = String.letters.filter { (char) -> Bool in
+                return !self.contains(char)
+            }
+            if notForbidden.count > 0 {
+                for idx in indices {
+                    let replacement = notForbidden.randomElement()!
+                    let charIdx = result.index(result.startIndex, offsetBy: idx)
+                    result.remove(at: charIdx)
+                    result.insert(replacement, at: charIdx)
+                }
+            } else {
+                for _ in 0..<steps {
+                     let addition = String.letters.randomElement()!
+                     let index = Int.random(in: 0..<result.count)
+                     result.insert(addition, at: result.index(result.startIndex, offsetBy: index))
+                 }
+            }
+            return result
+        }
     }
     
     static func min3(a: Int, b: Int, c: Int) -> Int {
@@ -93,7 +150,7 @@ extension String : Splittable {
         var columns: Int
         var rows: Int
         var matrix: [Int]
-
+        
         init(columns: Int, rows: Int) {
             self.columns = columns
             self.rows = rows
@@ -117,7 +174,7 @@ extension String : Splittable {
             return self.rows
         }
     }
-
+    
     static func levenshtein(sourceString: String, target targetString: String) -> Int {
         let source = Array(sourceString.unicodeScalars)
         let target = Array(targetString.unicodeScalars)
