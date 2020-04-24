@@ -508,6 +508,24 @@ final class VersolTests: XCTestCase {
 
     }
     
+    func testSplits() {
+        var d1 = Domain(0.0...10.0)
+        for _ in 1...10 {
+            d1.remove(Double.random(in: 0.0...10.0))
+        }
+        
+        let splits1 = d1.split(minimalStep: 0.1, count: 10)
+        XCTAssert(splits1.count == 10)
+
+        var d2 = Domain(0.0...10.0)
+        for _ in 1...10 {
+            d2.remove(Double.random(in: 0.0...10.0))
+        }
+        
+        let splits2 = d2.split(minimalStep: 2, count: 10)
+        XCTAssert(splits2.count == 5)
+    }
+    
     static var allTests = [
         ("testAppendingEmpty", testEmpty),
         ("testAppending", testAppending),
