@@ -4,7 +4,8 @@
 import Foundation
 
 /// HoledRange didn't appeal to some people, Domain is an acceptable substitute
-public typealias Domain = HoledRange
+/// Reversed on renaming to avoid breaking code downstream
+public typealias HoledRange = Domain
 
 /// Protocol used for random sample in the ranges
 public protocol Randomizable : Comparable {
@@ -43,10 +44,10 @@ extension Double : Randomizable {
 }
 
 extension String : Randomizable {
+    // Couldn't find a way to grab from CharacterSet, have to go old school, sorry UTF8
+    static let letters : String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.:;/=-+*@#%&"
     public static func randomElement(in range: ClosedRange<String>) -> String? {
-        // Couldn't find a way to grab from CharacterSet, have to go old school, sorry UTF8
         let length = Int.random(in: 8...100)
-        let letters : String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.:;/=-+*@#%&"
         let len = letters.count
         var randomString:String = ""
         var consecutiveRetries = 0 // have to stop at some point

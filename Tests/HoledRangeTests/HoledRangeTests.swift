@@ -6,7 +6,7 @@ import XCTest
 
 final class VersolTests: XCTestCase {
     func testEmpty() {
-        var h = HoledRange<Int>()
+        var h = Domain<Int>()
         XCTAssert(h.isEmpty, "Default should be empty")
         XCTAssert(!h.contains(Int.random(in: -100...100)), "Default should not contain anything")
         let c = h ~= Int.random(in: -100...100)
@@ -17,12 +17,12 @@ final class VersolTests: XCTestCase {
         h.append(v)
         XCTAssert(!h.isEmpty, "Should contain one value")
         
-        h = HoledRange(uncheckedBounds: (v,v2))
+        h = Domain(uncheckedBounds: (v,v2))
         XCTAssert(!h.isEmpty, "Should contain some values")
     }
     
     func testAppending() {
-        var h = HoledRange<Int>()
+        var h = Domain<Int>()
         let v = Int.random(in: -100...100)
         let v2 = Int.random(in: 101...200)
         let v3 = Int.random(in: 300...400)
@@ -52,8 +52,8 @@ final class VersolTests: XCTestCase {
         
         // MARK: Hole in Hole
         // Merging tests
-        var h1 = HoledRange(v...v2)
-        let h2 = HoledRange(v3...v4)
+        var h1 = Domain(v...v2)
+        let h2 = Domain(v3...v4)
         h1.append(h2)
         
         XCTAssert(h1 ~= (v+v2)/2, "Middle of first range should be inside")
@@ -79,7 +79,7 @@ final class VersolTests: XCTestCase {
         // simple single range
         let start = -100
         let end = 100
-        let h = HoledRange(start...end)
+        let h = Domain(start...end)
         
         XCTAssert(h.overlaps(start...end), "Closed Range should overlap")
         XCTAssert(h.overlaps(start..<end), "Range should overlap")
@@ -97,7 +97,7 @@ final class VersolTests: XCTestCase {
     }
     
     func testOperators() {
-        var h = HoledRange<Int>()
+        var h = Domain<Int>()
         let v = Int.random(in: -100...100)
         let v2 = Int.random(in: 101...200)
         let v3 = Int.random(in: 300...400)
@@ -127,8 +127,8 @@ final class VersolTests: XCTestCase {
         
         // MARK: Hole in Hole
         // Merging tests
-        var h1 = HoledRange(v...v2)
-        let h2 = HoledRange(v3...v4)
+        var h1 = Domain(v...v2)
+        let h2 = Domain(v3...v4)
         h1 = h1+h2
         
         XCTAssert(h1 ~= (v+v2)/2, "Middle of first range should be inside")
@@ -154,7 +154,7 @@ final class VersolTests: XCTestCase {
         let v = Int.random(in: -100...100)
         let v2 = Int.random(in: 101...200)
         let v3 = Int.random(in: 201...300)
-        var h1 = HoledRange(v)
+        var h1 = Domain(v)
         h1 = h1 + v2
         h1 = v3 + h1
         
@@ -165,17 +165,17 @@ final class VersolTests: XCTestCase {
         XCTAssert(h1 ~= v3, "Contains upper bound")
         XCTAssert(h1.overlaps(v...v3), "Overlaps the whole range")
         
-        var hs1 = HoledRange<Int>()
+        var hs1 = Domain<Int>()
         hs1.append(1)
         XCTAssert(hs1.isSingleValue)
         
-        let hs21 = HoledRange(1...1)
+        let hs21 = Domain(1...1)
         XCTAssert(hs21.isSingleValue)
-        var hs22 = HoledRange<Int>()
+        var hs22 = Domain<Int>()
         hs22.append(1...1)
         XCTAssert(hs22.isSingleValue)
         
-        var hs3 = HoledRange(1...1)
+        var hs3 = Domain(1...1)
         hs3.append(2...2)
         hs3.remove(2)
         XCTAssert(hs3.isSingleValue)
@@ -184,7 +184,7 @@ final class VersolTests: XCTestCase {
     func testSingleUnsigned() {
         let oneU : UInt16 = 1
         let twoU : UInt16 = 2
-        var hs3 = HoledRange(oneU...oneU)
+        var hs3 = Domain(oneU...oneU)
         hs3.append(twoU...twoU)
         hs3.remove(twoU)
         XCTAssert(hs3.isSingleValue)
@@ -192,7 +192,7 @@ final class VersolTests: XCTestCase {
     }
     
     func testRemoval() {
-        var h = HoledRange(0.0...1.0)
+        var h = Domain(0.0...1.0)
         h.remove(0.5)
         h.remove(0.3...0.4)
         XCTAssert(h.contains(0.1))
@@ -212,7 +212,7 @@ final class VersolTests: XCTestCase {
     }
     
     func testRandom() {
-        var h = HoledRange(0.0...1.0)
+        var h = Domain(0.0...1.0)
         h.remove(0.5)
         h.remove(0.3...0.4)
         
@@ -225,7 +225,7 @@ final class VersolTests: XCTestCase {
             }
         }
         
-        var h2 = HoledRange("A"..."zAQXSWCDEVFR")
+        var h2 = Domain("A"..."zAQXSWCDEVFR")
         h2.remove("Zzz"..."qWERTY")
         if let r1 = h2.randomElement() {
             XCTAssert(h2.contains(r1))
@@ -239,15 +239,15 @@ final class VersolTests: XCTestCase {
     
     func testOperations() {
         // Union
-        var h1 = HoledRange(1...1)
-        var h2 = HoledRange(2...2)
+        var h1 = Domain(1...1)
+        var h2 = Domain(2...2)
         
         h1.union(h2)
         XCTAssert(h1.contains(1))
         XCTAssert(h1.contains(2))
         
         // reset
-        h1 = HoledRange(1...1)
+        h1 = Domain(1...1)
         let u = h1 ∪ h2
         XCTAssert(u.contains(1))
         XCTAssert(u.contains(2))
@@ -258,8 +258,8 @@ final class VersolTests: XCTestCase {
         
         // Intersection
         // reset
-        h1 = HoledRange(1...3)
-        h2 = HoledRange(2...4)
+        h1 = Domain(1...3)
+        h2 = Domain(2...4)
         h1.intersection(h2)
         XCTAssert(h1.contains(2))
         XCTAssert(h1.contains(3))
@@ -267,7 +267,7 @@ final class VersolTests: XCTestCase {
         XCTAssertFalse(h1.contains(4))
         
         // reset
-        h1 = HoledRange(1...3)
+        h1 = Domain(1...3)
         let i = h1 ∩ h2
         XCTAssert(i.contains(2))
         XCTAssert(i.contains(3))
@@ -280,8 +280,8 @@ final class VersolTests: XCTestCase {
         
         // Symmetric difference
         // reset
-        h1 = HoledRange(1...3)
-        h2 = HoledRange(2...4)
+        h1 = Domain(1...3)
+        h2 = Domain(2...4)
         h1.symmetricDifference(h2)
         XCTAssertFalse(h1.contains(2))
         XCTAssertFalse(h1.contains(3))
@@ -289,7 +289,7 @@ final class VersolTests: XCTestCase {
         XCTAssert(h1.contains(4))
         
         // reset
-        h1 = HoledRange(1...3)
+        h1 = Domain(1...3)
         let s = h1 ⊖ h2
         XCTAssertFalse(s.contains(2))
         XCTAssertFalse(s.contains(3))
@@ -307,11 +307,11 @@ final class VersolTests: XCTestCase {
     }
     
     func testEquality() {
-        let h1 = HoledRange(1...1)
-        let h2 = HoledRange(2...2)
+        let h1 = Domain(1...1)
+        let h2 = Domain(2...2)
         let h3 = h1 ∪ h2
         
-        var h4 = HoledRange(1...1)
+        var h4 = Domain(1...1)
         h4.append(2)
         
         XCTAssertFalse(h1 == h2)
@@ -326,38 +326,38 @@ final class VersolTests: XCTestCase {
     func testMaths() {
         do {
             // ints
-            var hi1 = HoledRange(1...3)
+            var hi1 = Domain(1...3)
             try hi1.apply { $0 + 3 } // now at 4...6
-            let hi2 = try HoledRange(1...3) ~+ 3
+            let hi2 = try Domain(1...3) ~+ 3
             XCTAssert(hi1.contains(5) && hi2.contains(5))
             XCTAssertFalse(hi1.contains(1) || hi2.contains(1))
             
-            var hi3 = HoledRange(1...3)
+            var hi3 = Domain(1...3)
             try hi3.apply { $0 * 3 } // now at 3...9
-            let hi4 = try HoledRange(1...3) ~* 3
+            let hi4 = try Domain(1...3) ~* 3
             XCTAssert(hi3.contains(5) && hi4.contains(5))
             XCTAssertFalse(hi3.contains(1) || hi4.contains(1))
             
-            var hi5 = HoledRange(1...3)
+            var hi5 = Domain(1...3)
             try hi5.apply { $0 - 3 } // now at -2...0
-            let hi6 = try HoledRange(1...3) ~- 3
+            let hi6 = try Domain(1...3) ~- 3
             XCTAssert(hi5.contains(-1) && hi6.contains(-1))
             XCTAssertFalse(hi5.contains(1) || hi6.contains(1))
             
             // Doubles
-            var hd1 = HoledRange((1.0)...(3.0))
+            var hd1 = Domain((1.0)...(3.0))
             try hd1.apply { $0 + 3 } // now at 4...6
-            let hd2 = try HoledRange((1.0)...(3.0)) ~+ 3
+            let hd2 = try Domain((1.0)...(3.0)) ~+ 3
             XCTAssert(hd1.contains(5) && hd2.contains(5))
             XCTAssertFalse(hd1.contains(1) || hd2.contains(1))
             
-            var hd3 = HoledRange((1.0)...(3.0))
+            var hd3 = Domain((1.0)...(3.0))
             try hd3.apply { $0 / 2 } // now at 1...1.5
-            let hd4 = try HoledRange((1.0)...(3.0)) ~/ 2
+            let hd4 = try Domain((1.0)...(3.0)) ~/ 2
             XCTAssert(hd3.contains(1.25) && hd4.contains(1.25))
             XCTAssertFalse(hd3.contains(3) || hd4.contains(3))
             
-            var hs1 = HoledRange("a"..."z")
+            var hs1 = Domain("a"..."z")
             let hs2 = try hs1 ~* (4,"1")
             hs1 = try hs1 ~+ "1111"
             XCTAssert(hs1.lowerBound == hs2.lowerBound && hs1.upperBound == hs2.upperBound)
@@ -367,11 +367,11 @@ final class VersolTests: XCTestCase {
         
         do {
             // Larger application for debug purposes
-            var hsl = HoledRange<Double>(0.0...10.0)
+            var hsl = Domain<Double>(0.0...10.0)
             hsl.remove([0,1,2,3,4,5,6,7,8,9,10])
             hsl.append(20...100)
             
-            var hsl2 = HoledRange<Double>()
+            var hsl2 = Domain<Double>()
             hsl2.append(hsl)
             hsl2.remove([0,1,2,3,4,5,6,7,8,9,10])
             try hsl2.apply { cos(pow($0,2)) }
@@ -427,7 +427,7 @@ final class VersolTests: XCTestCase {
     }
     
     func testEnum() {
-        var hr = HoledRange<DoorState>()
+        var hr = Domain<DoorState>()
         hr.append(.closed)
         hr.append(.open)
         hr.remove(.opening)
@@ -444,7 +444,7 @@ final class VersolTests: XCTestCase {
     
     func testSequence() {
         var iteratedValues = [Int]()
-        let hr = HoledRange(1...10) ⊖ HoledRange(21...30)
+        let hr = Domain(1...10) ⊖ Domain(21...30)
         for n in hr {
             let assertion = (n >= 0 && n <= 10) || (n >= 20 && n <= 30)
             // Make sure we don't get values of of range
@@ -459,7 +459,7 @@ final class VersolTests: XCTestCase {
         XCTAssertEqual(20, iteratedValues.count)
         
         iteratedValues = [Int]()
-        let hr2 = HoledRange(1...10) ∪ HoledRange(21...30)
+        let hr2 = Domain(1...10) ∪ Domain(21...30)
         for n in hr2 {
             
             let assertion = (n >= 0 && n <= 10) || (n >= 20 && n <= 30)
@@ -470,7 +470,7 @@ final class VersolTests: XCTestCase {
         XCTAssertEqual(20, iteratedValues.count)
         
         iteratedValues = [Int]()
-        let hr3 = HoledRange(0...30) ∩ HoledRange(16...25)
+        let hr3 = Domain(0...30) ∩ Domain(16...25)
         for n in hr3 {
             
             let assertion = (n >= 16 && n <= 25)
@@ -481,14 +481,14 @@ final class VersolTests: XCTestCase {
         XCTAssertEqual(10, iteratedValues.count)
         
         // Make sure it can handle 0 elements
-        XCTAssertEqual(0, (HoledRange(1...10) ∩ HoledRange(20...30)).map { $0 }.count)
+        XCTAssertEqual(0, (Domain(1...10) ∩ Domain(20...30)).map { $0 }.count)
         
         // Asserting for a non interactive HoledRange
-        XCTAssertEqual(10, HoledRange(1...10).map{ $0 }.count)
+        XCTAssertEqual(10, Domain(1...10).map{ $0 }.count)
     }
     
     func testTransform() {
-        let hr = HoledRange(1...10) ⊖ HoledRange(21...30)
+        let hr = Domain(1...10) ⊖ Domain(21...30)
 
         let transformed1 = hr.transform { (v) -> Double in
             return Double(v)
@@ -506,6 +506,38 @@ final class VersolTests: XCTestCase {
         XCTAssert(transformed2.contains(-5))
         XCTAssert(!transformed1.contains(-12))
 
+    }
+    
+    func testSplits() {
+        var d1 = Domain(0.0...10.0)
+        for _ in 1...10 {
+            d1.remove(Double.random(in: 0.0...10.0))
+        }
+        
+        let splits1 = d1.split(minimalStep: 0.1, count: 10)
+        XCTAssert(splits1.count == 10)
+
+        var d2 = Domain(0.0...10.0)
+        for _ in 1...10 {
+            d2.remove(Double.random(in: 0.0...10.0))
+        }
+        
+        let splits2 = d2.split(minimalStep: 2, count: 10)
+        XCTAssert(splits2.count == 5)
+        
+        let testStr = "qwerty"
+        let empty = testStr.advancedBy(-6)
+        XCTAssert(empty.count == 0)
+        let bigger = testStr.advancedBy(14)
+        XCTAssert(bigger.count > 6)
+        let same = testStr.advancedBy(3)
+        XCTAssert(same.count == 6)
+
+        XCTAssert(empty.distanceTo(testStr) == 6) // levenstein doesn't work on empty strings
+        let bigD = bigger.distanceTo(testStr)
+        XCTAssert(bigD == 14, "\(bigD) should be 14")
+        XCTAssert(same.distanceTo(testStr) == 3)
+        XCTAssert("A".distanceTo("Z") == 1)
     }
     
     static var allTests = [
