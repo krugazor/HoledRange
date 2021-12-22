@@ -1,3 +1,6 @@
+- Version 0.1.5: Bugfix
+  + error in range merging
+
 - Version 0.1.4: QoL
   + Renamed HoledRange to Domain by default (HoledRange is the typealias now to avoid breaks)
   + Domain Splitting
