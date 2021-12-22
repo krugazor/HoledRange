@@ -96,7 +96,7 @@ public struct Domain<Bound> where Bound : Comparable, Bound : Hashable {
             let r1 = ranges[idx-1]
             let r2 = ranges[idx]
             if r1.upperBound >= r2.lowerBound { // the two should be merged
-                let rr = ClosedRange(uncheckedBounds: (r1.lowerBound, r2.upperBound))
+                let rr = ClosedRange(uncheckedBounds: (r1.lowerBound, Swift.max(r1.upperBound,r2.upperBound)))
                 ranges.replaceSubrange(idx-1...idx, with: [rr])
             } else {
                 idx += 1
