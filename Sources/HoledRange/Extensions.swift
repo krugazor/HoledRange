@@ -1,4 +1,4 @@
-// HoledRange ©Nicolas Zinovieff 2019
+// HoledRange ©Nicolas Zinovieff 2019-2022
 // Apache 2.0 Licence
 
 import Foundation
