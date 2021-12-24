@@ -1,4 +1,4 @@
-// HoledRange ©Nicolas Zinovieff 2019
+// HoledRange ©Nicolas Zinovieff 2019-2022
 // Apache 2.0 Licence
 
 import Foundation
@@ -116,4 +116,59 @@ extension Domain where Bound == String {
     }
     
     
+}
+
+extension Domain where Bound : FixedWidthInteger {
+    /// Optimizes the storage by merging ranges if needed
+    public mutating func optimizeStorageAggressive() {
+        var idx = 1
+        ranges.sort { (r1, r2) -> Bool in
+            return r1.lowerBound < r2.lowerBound
+        }
+        while idx < ranges.count {
+            let r1 = ranges[idx-1]
+            let r2 = ranges[idx]
+            if r1.upperBound >= r2.lowerBound { // the two should be merged
+                let rr = ClosedRange(uncheckedBounds: (r1.lowerBound, Swift.max(r1.upperBound,r2.upperBound)))
+                ranges.replaceSubrange(idx-1...idx, with: [rr])
+            } else {
+                idx += 1
+            }
+        }
+        
+        // special case: one of the bounds is in the excludes values
+        var nex = Set<Bound>()
+        for excl in excludedValues {
+            idx = 0
+            var keep = true
+            while idx < ranges.count {
+                let rr = ranges[idx]
+                if excl < rr.lowerBound || excl > rr.upperBound {
+                    idx += 1
+                    continue
+                } else if excl == rr.lowerBound && excl == upperBound {
+                    // special case, single value
+                    ranges.remove(at: idx)
+                    keep = false
+                    break
+                } else if excl == rr.lowerBound {
+                    ranges.replaceSubrange(idx...idx, with: [rr.lowerBound+1...rr.upperBound])
+                    keep = false
+                    break
+                } else if excl == rr.upperBound {
+                    ranges.replaceSubrange(idx...idx, with: [rr.lowerBound...rr.upperBound-1])
+                    keep = false
+                    break
+                } else if rr.lowerBound < excl && excl < rr.upperBound {
+                    // in between
+                    ranges.replaceSubrange(idx...idx, with: [rr.lowerBound...excl-1, excl+1...rr.upperBound])
+                    keep = false
+                    break
+                }
+                idx += 1
+            }
+            if keep { nex.insert(excl) }
+        }
+        excludedValues = nex
+    }
 }

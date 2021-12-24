@@ -1,3 +1,9 @@
+- Version 0.1.6: Maintenance
+  + FIXED: a couple of edge cases in the range merging/splitting algorithm
+  + ADDED: aggressive storage optimization when dealing with ints
+  + ADDED: accessors for the internat bits
+  + UPDATED: comments and dates
+
 - Version 0.1.5: Bugfix
   + error in range merging
 

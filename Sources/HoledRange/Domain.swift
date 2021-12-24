@@ -1,9 +1,9 @@
-// HoledRange ©Nicolas Zinovieff 2019
+// HoledRange ©Nicolas Zinovieff 2019-2022
 // Apache 2.0 Licence
 
 import Foundation
 
-/// HoledRange allows for ranges to be more than open or closed. They can have holes in the middle as well
+/// Domain allows for ranges to be more than open or closed. They can have holes in the middle as well
 public struct Domain<Bound> where Bound : Comparable, Bound : Hashable {
 	/// private storage as `ClosedRange` collection
     var ranges: [ClosedRange<Bound>] = []
@@ -27,19 +27,31 @@ public struct Domain<Bound> where Bound : Comparable, Bound : Hashable {
             return r1.upperBound < r2.upperBound
             }?.upperBound
     }
+
+    /// Returns a copy of the internal ranges
+    /// - Returns: the ranges used in this domain
+    public func getRanges() -> [ClosedRange<Bound>] {
+        return Array(ranges)
+    }
+
+    /// Returns a copy of the excluded values
+    /// - Returns: the excluded values used in this domain
+    public func getExcludedValues() -> Set<Bound> {
+        return Set(excludedValues)
+    }
     
-    /// Creates an empty HoledRange
+    /// Creates an empty Domain
     public init() {
         // this space for rent
     }
     
-    /// Creates a HoledRange from a ClosedRange
+    /// Creates a Domain from a ClosedRange
     /// - Parameter r: Another range.
     public init(_ r: ClosedRange<Bound>) {
         ranges.append(r)
     }
     
-    /// Creates a HoledRange from a single value
+    /// Creates a Domain from a single value
     /// - Parameter v: The value.
     public init(_ v: Bound) {
         ranges.append(v...v)
@@ -322,6 +334,9 @@ extension Domain { // punching holes
             if original == r {
                 // just remove the range
                 ranges.remove(at: i)
+            } else if original.lowerBound > r.lowerBound && original.upperBound < r.upperBound {
+                // original is in the middle of the exclusion
+                ranges.remove(at: i)
             } else if original.lowerBound < r.lowerBound && original.upperBound > r.upperBound {
                 // right in the middle
                 let rr1 = original.lowerBound...r.lowerBound
@@ -329,6 +344,16 @@ extension Domain { // punching holes
                 ranges.replaceSubrange(i...i, with: [rr1,rr2])
                 excludedValues.insert(r.lowerBound)
                 excludedValues.insert(r.upperBound)
+            } else if r.lowerBound == original.lowerBound && r.upperBound < original.upperBound {
+                // lower part
+                let rr = r.upperBound...original.upperBound
+                ranges.replaceSubrange(i...i, with: [rr])
+                excludedValues.insert(r.upperBound)
+            } else if r.upperBound == original.upperBound && r.lowerBound > original.lowerBound {
+                // higher part
+                let rr = original.lowerBound...r.upperBound
+                ranges.replaceSubrange(i...i, with: [rr])
+                excludedValues.insert(r.lowerBound)
             } else if r.lowerBound < original.lowerBound && original.upperBound >= r.upperBound {
                 // astride lower part, exclude upper bound
                 let rr = original.lowerBound...r.upperBound
@@ -587,5 +612,12 @@ extension Domain : Sequence where Bound : Strideable, Bound.Stride : SignedInteg
 
             return nil
         }
+    }
+}
+
+/// Extension that allows for integer like types to have countable ranges
+public extension Domain where Bound : FixedWidthInteger {
+    var count : Int {
+        return ranges.reduce(0, { $0 + $1.count })
     }
 }
