@@ -618,6 +618,6 @@ extension Domain : Sequence where Bound : Strideable, Bound.Stride : SignedInteg
 /// Extension that allows for integer like types to have countable ranges
 public extension Domain where Bound : FixedWidthInteger {
     var count : Int {
-        return ranges.reduce(0, { $0 + $1.count })
+        return ranges.reduce(0, { $0 + $1.count }) - excludedValues.count
     }
 }
