@@ -351,7 +351,7 @@ extension Domain { // punching holes
                 excludedValues.insert(r.upperBound)
             } else if r.upperBound == original.upperBound && r.lowerBound > original.lowerBound {
                 // higher part
-                let rr = original.lowerBound...r.upperBound
+                let rr = original.lowerBound...r.lowerBound
                 ranges.replaceSubrange(i...i, with: [rr])
                 excludedValues.insert(r.lowerBound)
             } else if r.lowerBound < original.lowerBound && original.upperBound >= r.upperBound {
