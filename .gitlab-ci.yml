@@ -1,0 +1,20 @@
+test-linux:
+  stage: test
+  image: swift:latest
+  script:
+    - swift test
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'develop'
+      when: always
+  tags:
+    - docker
+
+test-macos:
+  stage: test
+  script:
+    - swift test
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'develop'
+      when: always
+  tags:
+    - macos

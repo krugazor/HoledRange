@@ -70,6 +70,9 @@ extension Domain where Bound : FloatingPoint {
             let nlb = f(r.lowerBound)
             let nhb = f(r.upperBound)
             
+            guard !nlb.isNaN else { throw MathError(boundProblem: nlb)}
+            guard !nhb.isNaN else { throw MathError(boundProblem: nhb)}
+
             let nr = ClosedRange(uncheckedBounds: (Swift.min(nlb,nhb),Swift.max(nlb,nhb)))
             newRanges.append(nr)
             if nr.lowerBound.isNaN || nr.lowerBound.isInfinite { // infinity is tracked through emptiness, NaN isn't cool as a bound
